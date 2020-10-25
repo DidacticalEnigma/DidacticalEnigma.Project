@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>MagicTranslatorProject</RootNamespace>
+    <PackageVersion>0.9.6</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DidacticalEnigma.Project\DidacticalEnigma.Project.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>
