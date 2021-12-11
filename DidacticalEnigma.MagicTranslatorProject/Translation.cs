@@ -22,7 +22,7 @@ namespace MagicTranslatorProject
 
         public override string TranslatedText => Capture.Translation;
 
-        public override IEnumerable<GlossNote> Glosses => Capture.GlossNotes.Select(c => new GlossNote(c.SideText, c.Text));
+        public override IEnumerable<GlossNote> Glosses => Capture.GlossNotes?.Select(c => new GlossNote(c.SideText, c.Text)) ?? Enumerable.Empty<GlossNote>();
 
         public override IEnumerable<TranslatorNote> Notes => Capture.Notes.Select(c => new TranslatorNote(c.SideText, c.Text));
 
@@ -63,7 +63,7 @@ namespace MagicTranslatorProject
             var other = new Translation(json, this.Guid);
             other.Capture.Text = originalText ?? this.OriginalText;
             other.Capture.Translation = translatedText ?? this.TranslatedText;
-            other.Capture.GlossNotes = (glosses ?? this.Glosses).Select(g => new NoteJson(g.Foreign, g.Text)).ToList();
+            other.Capture.GlossNotes = (glosses ?? this.Glosses)?.Select(g => new NoteJson(g.Foreign, g.Text)).ToList() ?? new List<NoteJson>();
             other.Capture.Notes = (notes ?? this.Notes).Select(g => new NoteJson(g.SideText, g.Text)).ToList();
             return other;
         }

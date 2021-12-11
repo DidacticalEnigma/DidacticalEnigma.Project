@@ -18,6 +18,7 @@ namespace MagicTranslatorProject.Json
         public IEnumerable<NoteJson> Notes { get; set; }
         
         [JsonProperty("glossNotes")]
+        [CanBeNull]
         public IEnumerable<NoteJson> GlossNotes { get; set; }
 
         [JsonProperty("character")]
