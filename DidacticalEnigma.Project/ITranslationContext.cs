@@ -6,6 +6,8 @@ namespace DidacticalEnigma.Project
     public interface ITranslationContext
     {
         IEnumerable<ITranslationContext> Children { get; }
+        
+        string ReadableIdentifier { get; }
 
         string ShortDescription { get; }
     }

@@ -26,6 +26,8 @@ namespace MagicTranslatorProject.Context
         IEnumerable<ITranslationContext> ITranslationContext.Children => Children;
 
         public string ShortDescription => $"{root.Name}: Volume {chapter.Volume.VolumeNumber}, Chapter {chapter.ChapterNumber}";
+        
+        public string ReadableIdentifier => chapter.ToString();
 
         private readonly WeakReference<IReadOnlyCollection<PageContext>> children = new WeakReference<IReadOnlyCollection<PageContext>>(null);
         private ProjectDirectoryListingProvider listing;

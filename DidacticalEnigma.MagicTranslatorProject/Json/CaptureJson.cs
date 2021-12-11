@@ -14,7 +14,10 @@ namespace MagicTranslatorProject.Json
         public string Translation { get; set; }
 
         [JsonProperty("notes")]
-        public IEnumerable<IReadOnlyList<string>> Notes { get; set; }
+        public IEnumerable<NoteJson> Notes { get; set; }
+        
+        [JsonProperty("glossNotes")]
+        public IEnumerable<NoteJson> GlossNotes { get; set; }
 
         [JsonProperty("character")]
         public CharacterType Character { get; set; }

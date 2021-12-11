@@ -15,6 +15,8 @@ namespace MagicTranslatorProject.Context
         IEnumerable<ITranslationContext> ITranslationContext.Children => captures;
 
         public string ShortDescription => $"{name}: Volume {page.Chapter.Volume.VolumeNumber}, Chapter {page.Chapter.ChapterNumber}, Page {page.PageNumber}";
+        
+        public string ReadableIdentifier => page.ToString();
 
         internal PageContext([NotNull] MangaContext root, [NotNull] ProjectDirectoryListingProvider listing, [NotNull] PageId page)
         {
@@ -33,7 +35,7 @@ namespace MagicTranslatorProject.Context
                         {
                             pageJson.Captures[i] = j;
                             return ModificationResult.WithSuccess(new Translation(c, guid));
-                        }, new Translation(c, guid));
+                        }, new Translation(c, guid), new CaptureId(page, c.Id));
                     })
                     .ToList();
             }

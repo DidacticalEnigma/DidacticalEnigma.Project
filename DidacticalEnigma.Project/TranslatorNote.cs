@@ -6,22 +6,25 @@ namespace DidacticalEnigma.Project
     {
         public bool Equals(TranslatorNote other)
         {
-            if (other is null) return false;
+            if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return string.Equals(Text, other.Text);
+            return SideText == other.SideText && Text == other.Text;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is null) return false;
+            if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((TranslatorNote) obj);
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((TranslatorNote)obj);
         }
 
         public override int GetHashCode()
         {
-            return (Text != null ? Text.GetHashCode() : 0);
+            unchecked
+            {
+                return ((SideText != null ? SideText.GetHashCode() : 0) * 397) ^ (Text != null ? Text.GetHashCode() : 0);
+            }
         }
 
         public static bool operator ==(TranslatorNote left, TranslatorNote right)
@@ -34,16 +37,19 @@ namespace DidacticalEnigma.Project
             return !Equals(left, right);
         }
 
+        public string SideText { get; }
+
         public string Text { get; }
 
-        public TranslatorNote(string text)
+        public TranslatorNote(string sideText, string text)
         {
+            SideText = sideText;
             Text = text;
         }
 
         public override string ToString()
         {
-            return $"{Text}";
+            return $"{SideText}: {Text}";
         }
     }
 }

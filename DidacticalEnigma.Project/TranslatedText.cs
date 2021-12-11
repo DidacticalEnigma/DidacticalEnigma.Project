@@ -7,7 +7,7 @@ namespace DidacticalEnigma.Project
         public string Author { get; }
 
         public TranslatedText(string author, string text) :
-            base(text)
+            base(author, text)
         {
             Author = author ?? throw new ArgumentNullException(nameof(author));
         }

@@ -25,6 +25,8 @@ namespace DidacticalEnigma.Project
         private class Context : ITranslationContext
         {
             public IEnumerable<ITranslationContext> Children => Enumerable.Empty<ITranslationContext>();
+            
+            public string ReadableIdentifier => ShortDescription;
 
             public string ShortDescription => "";
         }

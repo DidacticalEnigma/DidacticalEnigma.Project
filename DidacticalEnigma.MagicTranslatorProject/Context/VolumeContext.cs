@@ -49,6 +49,8 @@ namespace MagicTranslatorProject.Context
         }
 
         public string ShortDescription => $"{root.Name}: Volume {volume.VolumeNumber}";
+        
+        public string ReadableIdentifier => volume.ToString();
 
         IEnumerable<ITranslationContext> ITranslationContext.Children => Children;
     }

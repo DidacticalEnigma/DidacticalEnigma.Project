@@ -40,7 +40,7 @@ namespace DidacticalEnigma.Project
         public string Foreign { get; }
 
         public GlossNote(string foreign, string text) :
-            base(text)
+            base(foreign, text)
         {
             Foreign = foreign ?? throw new ArgumentNullException(nameof(foreign));
         }

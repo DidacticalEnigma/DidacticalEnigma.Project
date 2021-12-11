@@ -28,6 +28,9 @@ namespace MagicTranslatorProject.Context
                 }
             }
         }
+        
+        public string ReadableIdentifier => "";
+        
         public string ShortDescription => Name;
 
         IEnumerable<ITranslationContext> ITranslationContext.Children => Children;
@@ -56,6 +59,8 @@ namespace MagicTranslatorProject.Context
                 })
                 .ToList();
         }
+
+        public IEnumerable<Character> Characters => IdNameMapping.Select(kvp => new Character(kvp.Key, kvp.Value));
 
         internal IReadOnlyDualDictionary<long, string> IdNameMapping { get; }
 

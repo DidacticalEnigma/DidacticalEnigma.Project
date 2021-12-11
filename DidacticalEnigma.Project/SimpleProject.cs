@@ -68,6 +68,8 @@ namespace DidacticalEnigma.Project
 
             IEnumerable<ITranslationContext> ITranslationContext.Children => children;
 
+            public string ReadableIdentifier => rootPath;
+
             IReadOnlyList<Context> IModifiableTranslationContext<Context>.Children => children;
 
             ITranslationContext IModifiableTranslationContext.AppendEmpty()
@@ -139,6 +141,8 @@ namespace DidacticalEnigma.Project
             private readonly SimpleProject project;
 
             public IEnumerable<ITranslationContext> Children => Enumerable.Empty<ITranslationContext>();
+            
+            public string ReadableIdentifier => "";
 
             public Project.Translation Translation { get; private set; }
 

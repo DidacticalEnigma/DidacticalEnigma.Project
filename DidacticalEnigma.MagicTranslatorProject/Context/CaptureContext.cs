@@ -9,6 +9,7 @@ namespace MagicTranslatorProject.Context
     public class CaptureContext : IEditableTranslation
     {
         private readonly Func<CaptureJson, ModificationResult> saveAction;
+        private readonly CaptureId captureId;
         private readonly PageContext pageContext;
         private readonly CaptureJson json;
 
@@ -16,11 +17,13 @@ namespace MagicTranslatorProject.Context
             PageContext pageContext,
             CaptureJson json,
             Func<CaptureJson, ModificationResult> saveAction,
-            Translation translation)
+            Translation translation,
+            CaptureId captureId)
         {
             this.pageContext = pageContext;
             this.json = json;
             this.saveAction = saveAction;
+            this.captureId = captureId;
             this.Translation = translation;
         }
 
@@ -38,5 +41,7 @@ namespace MagicTranslatorProject.Context
         public IEnumerable<ITranslationContext> Children => Enumerable.Empty<ITranslationContext>();
 
         public string ShortDescription => $"{pageContext.ShortDescription}. {json.Character}";
+
+        public string ReadableIdentifier => captureId.ToString();
     }
 }
