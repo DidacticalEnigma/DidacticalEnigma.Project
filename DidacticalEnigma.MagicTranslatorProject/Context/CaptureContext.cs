@@ -27,6 +27,8 @@ namespace MagicTranslatorProject.Context
             this.Translation = translation;
         }
 
+        public CharacterType Character => json.Character;
+
         public DidacticalEnigma.Project.Translation Translation { get; private set; }
 
         public ModificationResult Modify(DidacticalEnigma.Project.Translation translation)

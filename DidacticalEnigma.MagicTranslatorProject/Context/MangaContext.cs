@@ -42,10 +42,11 @@ namespace MagicTranslatorProject.Context
             this.listing = listing;
             this.metadata = metadata;
             RootPath = rootPath;
-            IdNameMapping = new DualDictionary<long, string>(JsonConvert.DeserializeObject<CharactersJson>(
-                File.ReadAllText(listing.GetCharactersPath()))
-                .Characters
+            this.charactersJson = JsonConvert.DeserializeObject<CharactersJson>(
+                File.ReadAllText(listing.GetCharactersPath()));
+            IdNameMapping = new DualDictionary<long, string>(charactersJson.Characters
                 .ToDictionary(c => c.Id, c => c.Name));
+            this.characterTypeConverter = new CharacterTypeConverter(IdNameMapping);
         }
 
         private readonly MetadataJson metadata;
@@ -60,7 +61,15 @@ namespace MagicTranslatorProject.Context
                 .ToList();
         }
 
-        public IEnumerable<Character> Characters => IdNameMapping.Select(kvp => new Character(kvp.Key, kvp.Value));
+        public IEnumerable<CharacterType> AllCharacters => charactersJson.Characters
+            .Select(c => (CharacterType)new NamedCharacter(c.Id, c.Name))
+            .Concat(new CharacterType[]
+            {
+                new BasicCharacter("unknown"),
+                new BasicCharacter("chapter-title"),
+                new BasicCharacter("narrator"),
+                new BasicCharacter("sfx")
+            });
 
         internal IReadOnlyDualDictionary<long, string> IdNameMapping { get; }
 
@@ -75,6 +84,10 @@ namespace MagicTranslatorProject.Context
             new ConcurrentDictionary<(PageId page, long captureId), Guid>();
 
         private readonly ProjectDirectoryListingProvider listing;
+        
+        private readonly CharactersJson charactersJson;
+        
+        private readonly CharacterTypeConverter characterTypeConverter;
 
         public string RootPath { get; }
 

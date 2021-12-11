@@ -1,4 +1,5 @@
 ﻿using System;
+using MagicTranslatorProject.Context;
 using Newtonsoft.Json;
 using Utility.Utils;
 
@@ -30,7 +31,7 @@ namespace MagicTranslatorProject.Json
             switch (o)
             {
                 case long i:
-                    return new NamedCharacter(nameMapping[i]);
+                    return new NamedCharacter(i, nameMapping[i]);
                 case string s:
                     return new BasicCharacter(s);
                 default:
