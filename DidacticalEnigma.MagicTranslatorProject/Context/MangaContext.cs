@@ -42,8 +42,12 @@ namespace MagicTranslatorProject.Context
             this.listing = listing;
             this.metadata = metadata;
             RootPath = rootPath;
-            this.charactersJson = JsonConvert.DeserializeObject<CharactersJson>(
-                File.ReadAllText(listing.GetCharactersPath()));
+
+            using var file = listing.FileOpen(listing.GetCharactersPath());
+            using var jsonReader = new JsonTextReader(file);
+            var serializer = new JsonSerializer();
+            
+            this.charactersJson = serializer.Deserialize<CharactersJson>(jsonReader);
             IdNameMapping = new DualDictionary<long, string>(charactersJson.Characters
                 .ToDictionary(c => c.Id, c => c.Name));
             this.characterTypeConverter = new CharacterTypeConverter(IdNameMapping);

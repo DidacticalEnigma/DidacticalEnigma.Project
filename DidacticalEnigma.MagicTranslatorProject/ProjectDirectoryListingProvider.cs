@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using MagicTranslatorProject.Json;
+
+namespace MagicTranslatorProject
+{
+    internal class ProjectDirectoryListingProvider
+    {
+        private MetadataJson metadata;
+
+        private Func<string, StreamReader> fileOpen;
+
+        public StreamReader FileOpen(string path)
+        {
+            return File.OpenText(path);
+        }
+
+        public string GetCapturePath([NotNull] PageId page)
+        {
+            return FormatPath(
+                Path.Combine(rootPath, metadata.Structure.Capture),
+                page) + ".json";
+        }
+
+        public string GetRawPath([NotNull] PageId page)
+        {
+            return FormatPath(
+                Path.Combine(rootPath, metadata.Structure.Raw),
+                page);
+        }
+
+        private IEnumerable<int> Enumerate(int volume, int chapter, [NotNull] string group)
+        {
+            var components = ("/" + metadata.Structure.Raw)
+                .Split('/', '\\');
+            var rest = components.Zip(components.Skip(1), (current, next) => (current, next))
+                .TakeWhile(c => !c.current.Contains("{" + group + "}"))
+                .Select(c => c.next)
+                .ToList();
+            var matcher = new Regex(Regex.Escape(rest[rest.Count - 1])
+                .Replace("\\{volume}", GetRegexComponent(metadata.Structure.Volume, "volume"))
+                .Replace("\\{chapter}", GetRegexComponent(metadata.Structure.Chapter, "chapter"))
+                .Replace("\\{page}", GetRegexComponent(metadata.Structure.Page, "page")));
+
+            var rootVolumePath = Path.Combine(new[] { rootPath }
+                .Concat(rest.Take(rest.Count - 1)
+                    .Select(c => c.Replace("{volume}", FillPlaceholder(metadata.Structure.Volume, volume)))
+                    .Select(c => c.Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, chapter))))
+                .ToArray());
+
+            return new DirectoryInfo(rootVolumePath)
+                .EnumerateFileSystemInfos()
+                .Select(f => matcher.Match(f.Name))
+                .Where(m => m.Success)
+                .Select(m => int.Parse(m.Groups[group].Value))
+                .Distinct()
+                .OrderBy(x => x);
+        }
+
+        public IEnumerable<VolumeId> EnumerateVolumes()
+        {
+            return Enumerate(0, 0, "volume")
+                .Select(x => new VolumeId(x));
+        }
+
+        public IEnumerable<ChapterId> EnumerateChapters([NotNull] VolumeId volume)
+        {
+            return Enumerate(volume.VolumeNumber, 0, "chapter")
+                .Select(x => new ChapterId(volume, x));
+        }
+
+        public IEnumerable<PageId> EnumeratePages([NotNull] ChapterId chapter)
+        {
+            return Enumerate(chapter.Volume.VolumeNumber, chapter.ChapterNumber, "page")
+                .Select(x => new PageId(chapter, x));
+        }
+
+        private string FormatPath([NotNull] string path, [NotNull] PageId pageId)
+        {
+            path = path
+                .Replace("{volume}", FillPlaceholder(metadata.Structure.Volume, pageId.Chapter.Volume.VolumeNumber))
+                .Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, pageId.Chapter.ChapterNumber))
+                .Replace("{page}", FillPlaceholder(metadata.Structure.Page, pageId.PageNumber));
+            return path;
+        }
+
+        private static readonly Regex numberPlaceholder = new Regex("(#+)");
+
+        private readonly string rootPath;
+
+        private int LengthOfNumberPlaceholder([NotNull] string format)
+        {
+            return numberPlaceholder.Match(format).Groups[1].Value.Length;
+        }
+
+        private string GetRegexComponent([NotNull] string format, [NotNull] string groupName)
+        {
+            var length = LengthOfNumberPlaceholder(format);
+            return numberPlaceholder.Replace(format, $"(?<{groupName}>[0-9]{{{length}}})");
+        }
+
+        private string FillPlaceholder([NotNull] string format, int value)
+        {
+            return numberPlaceholder.Replace(format, value.ToString().PadLeft(LengthOfNumberPlaceholder(format), '0'));
+        }
+
+        public ProjectDirectoryListingProvider([NotNull] MetadataJson metadata, [NotNull] string rootPath)
+        {
+            this.metadata = metadata;
+            this.rootPath = rootPath;
+        }
+
+        public string GetCharactersPath()
+        {
+            return Path.Combine(rootPath, metadata.Structure.Characters ?? "character", "characters.json");
+        }
+    }
+}

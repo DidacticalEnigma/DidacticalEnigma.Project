@@ -25,8 +25,13 @@ namespace MagicTranslatorProject.Context
             this.page = page;
             try
             {
-                var pageJson = JsonConvert.DeserializeObject<PageJson>(File.ReadAllText(listing.GetCapturePath(page)),
-                    new CharacterTypeConverter(root.IdNameMapping));
+                var serializer = new JsonSerializer();
+                serializer.Converters.Add(new CharacterTypeConverter(root.IdNameMapping));
+                
+                using var file = listing.FileOpen(listing.GetCapturePath(page));
+                using var jsonReader = new JsonTextReader(file);
+                var pageJson = serializer.Deserialize<PageJson>(jsonReader);
+                
                 captures = pageJson.Captures
                     .Select((c, i) =>
                     {
