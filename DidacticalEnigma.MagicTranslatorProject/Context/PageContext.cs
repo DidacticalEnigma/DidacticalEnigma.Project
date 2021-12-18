@@ -36,11 +36,7 @@ namespace MagicTranslatorProject.Context
                     .Select((c, i) =>
                     {
                         var guid = root.Map(page, c.Id).Some();
-                        return new CaptureContext(this, c, j =>
-                        {
-                            pageJson.Captures[i] = j;
-                            return ModificationResult.WithSuccess(new Translation(c, guid));
-                        }, new Translation(c, guid), new CaptureId(page, c.Id));
+                        return new CaptureContext(this, c, new Translation(c, guid), new CaptureId(page, c.Id));
                     })
                     .ToList();
             }

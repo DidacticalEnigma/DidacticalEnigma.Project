@@ -37,11 +37,10 @@ namespace MagicTranslatorProject.Context
 
         private WeakReference<IReadOnlyCollection<VolumeContext>> volumes = new WeakReference<IReadOnlyCollection<VolumeContext>>(null);
 
-        internal MangaContext(MetadataJson metadata, string rootPath, ProjectDirectoryListingProvider listing)
+        internal MangaContext(MetadataJson metadata, ProjectDirectoryListingProvider listing)
         {
             this.listing = listing;
             this.metadata = metadata;
-            RootPath = rootPath;
 
             using var file = listing.FileOpen(listing.GetCharactersPath());
             using var jsonReader = new JsonTextReader(file);
@@ -92,8 +91,6 @@ namespace MagicTranslatorProject.Context
         private readonly CharactersJson charactersJson;
         
         private readonly CharacterTypeConverter characterTypeConverter;
-
-        public string RootPath { get; }
 
         public string Name => metadata.Name;
     }

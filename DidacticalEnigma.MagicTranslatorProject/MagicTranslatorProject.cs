@@ -11,6 +11,8 @@ namespace MagicTranslatorProject
 {
     public class MagicTranslatorProject : IProject
     {
+        [NotNull] private readonly IReadOnlyFileSystem rootFs;
+
         private class MagicTranslatorProjectRegistration : ProjectFormatHandlerRegistration
         {
             public MagicTranslatorProjectRegistration() :
@@ -22,9 +24,10 @@ namespace MagicTranslatorProject
             {
                 try
                 {
-                    var metadata = Validate(path);
+                    var rootFs = new ReadOnlyFileSystem(path);
+                    var metadata = Validate(rootFs);
                     var p = new MagicTranslatorProject();
-                    p.Init(metadata, path);
+                    p.Init(metadata, rootFs);
                     project = p;
                     failureReason = "";
                     return true;
@@ -78,11 +81,15 @@ namespace MagicTranslatorProject
         }
 
         public event EventHandler<TranslationChangedEventArgs> TranslationChanged;
-
-        private static MetadataJson Validate([NotNull] string path)
+        
+        private static MetadataJson Validate([NotNull] IReadOnlyFileSystem rootFs)
         {
-            var text = File.ReadAllText(Path.Combine(path, "metadata.json"));
-            var metadata = JsonConvert.DeserializeObject<MetadataJson>(text);
+            using var fileStream = rootFs.FileOpen("metadata.json");
+            using var reader = new StreamReader(fileStream);
+            using var jsonReader = new JsonTextReader(reader);
+            var serializer = new JsonSerializer();
+            
+            var metadata = serializer.Deserialize<MetadataJson>(jsonReader);
             if (!HasContinuousDigitPlaceholders(metadata.Structure.Volume))
             {
                 throw new InvalidDataException("Volume path cannot have separated digits");
@@ -118,15 +125,23 @@ namespace MagicTranslatorProject
 
         }
 
-        private void Init([NotNull] MetadataJson json, [NotNull] string path)
+        private void Init([NotNull] MetadataJson json, [NotNull] IReadOnlyFileSystem rootFs)
         {
-            Root = new MangaContext(json, path, new ProjectDirectoryListingProvider(json, path));
+            Root = new MangaContext(json, new ProjectDirectoryListingProvider(json, rootFs));
         }
 
         public MagicTranslatorProject([NotNull] string path)
         {
-            var json = Validate(path);
-            Init(json, path);
+            this.rootFs = new ReadOnlyFileSystem(path);
+            var json = Validate(rootFs);
+            Init(json, rootFs);
+        }
+        
+        public MagicTranslatorProject([NotNull] IReadOnlyFileSystem rootFs)
+        {
+            this.rootFs = rootFs;
+            var json = Validate(rootFs);
+            Init(json, rootFs);
         }
 
         protected virtual void OnTranslationChanged([NotNull] TranslationChangedEventArgs e)

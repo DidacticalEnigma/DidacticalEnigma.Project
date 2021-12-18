@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using DidacticalEnigma.Project;
 using JetBrains.Annotations;
 using MagicTranslatorProject.Json;
 
@@ -11,25 +12,25 @@ namespace MagicTranslatorProject
     internal class ProjectDirectoryListingProvider
     {
         private MetadataJson metadata;
+        
+        [NotNull] private readonly IReadOnlyFileSystem readOnlyFileSystem;
 
-        private Func<string, StreamReader> fileOpen;
-
-        public StreamReader FileOpen(string path)
+        public TextReader FileOpen(string path)
         {
-            return File.OpenText(path);
+            return new StreamReader(readOnlyFileSystem.FileOpen(path));
         }
 
         public string GetCapturePath([NotNull] PageId page)
         {
             return FormatPath(
-                Path.Combine(rootPath, metadata.Structure.Capture),
+                metadata.Structure.Capture,
                 page) + ".json";
         }
 
         public string GetRawPath([NotNull] PageId page)
         {
             return FormatPath(
-                Path.Combine(rootPath, metadata.Structure.Raw),
+                metadata.Structure.Raw,
                 page);
         }
 
@@ -46,15 +47,15 @@ namespace MagicTranslatorProject
                 .Replace("\\{chapter}", GetRegexComponent(metadata.Structure.Chapter, "chapter"))
                 .Replace("\\{page}", GetRegexComponent(metadata.Structure.Page, "page")));
 
-            var rootVolumePath = Path.Combine(new[] { rootPath }
-                .Concat(rest.Take(rest.Count - 1)
+            var rootVolumePath = Path.Combine(
+                rest
+                    .Take(rest.Count - 1)
                     .Select(c => c.Replace("{volume}", FillPlaceholder(metadata.Structure.Volume, volume)))
-                    .Select(c => c.Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, chapter))))
-                .ToArray());
+                    .Select(c => c.Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, chapter)))
+                    .ToArray());
 
-            return new DirectoryInfo(rootVolumePath)
-                .EnumerateFileSystemInfos()
-                .Select(f => matcher.Match(f.Name))
+            return readOnlyFileSystem.List(rootVolumePath)
+                .Select(p => matcher.Match(p))
                 .Where(m => m.Success)
                 .Select(m => int.Parse(m.Groups[group].Value))
                 .Distinct()
@@ -90,8 +91,6 @@ namespace MagicTranslatorProject
 
         private static readonly Regex numberPlaceholder = new Regex("(#+)");
 
-        private readonly string rootPath;
-
         private int LengthOfNumberPlaceholder([NotNull] string format)
         {
             return numberPlaceholder.Match(format).Groups[1].Value.Length;
@@ -108,15 +107,15 @@ namespace MagicTranslatorProject
             return numberPlaceholder.Replace(format, value.ToString().PadLeft(LengthOfNumberPlaceholder(format), '0'));
         }
 
-        public ProjectDirectoryListingProvider([NotNull] MetadataJson metadata, [NotNull] string rootPath)
+        public ProjectDirectoryListingProvider([NotNull] MetadataJson metadata, [NotNull] IReadOnlyFileSystem readOnlyFileSystem)
         {
             this.metadata = metadata;
-            this.rootPath = rootPath;
+            this.readOnlyFileSystem = readOnlyFileSystem;
         }
 
         public string GetCharactersPath()
         {
-            return Path.Combine(rootPath, metadata.Structure.Characters ?? "character", "characters.json");
+            return Path.Combine(metadata.Structure.Characters ?? "character", "characters.json");
         }
     }
 }

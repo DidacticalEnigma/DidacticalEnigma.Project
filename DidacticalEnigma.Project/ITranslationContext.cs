@@ -38,11 +38,14 @@ namespace DidacticalEnigma.Project
 
         new TContext AppendEmpty();
     }
-
-    public interface IEditableTranslation : ITranslationContext
+    
+    public interface IReadOnlyTranslation : ITranslationContext
     {
         Translation Translation { get; }
+    }
 
+    public interface IEditableTranslation : IReadOnlyTranslation
+    {
         ModificationResult Modify(Translation translation);
     }
 
