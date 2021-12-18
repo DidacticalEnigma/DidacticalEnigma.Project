@@ -1,36 +1,19 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace DidacticalEnigma.Project
 {
+    // Filesystem abstraction
     public interface IReadOnlyFileSystem
     {
+        // open a file relative to root of this object
         Stream FileOpen(string path);
 
+        // list all the files and directories directly contained by directory at given path
+        // can be empty, which means listing files and directories at root 
+        // the listed paths are relative to the root of this object
+        // so they can be passed directly to the FileOpen function
+        // directories are indicated by the trailing slash character
         IEnumerable<string> List(string path);
-    }
-
-    public class ReadOnlyFileSystem : IReadOnlyFileSystem
-    {
-        private readonly string rootPath;
-
-        public ReadOnlyFileSystem(string rootPath)
-        {
-            this.rootPath = rootPath;
-        }
-        
-        public Stream FileOpen(string path)
-        {
-            return File.OpenRead(Path.Combine(this.rootPath, path));
-        }
-
-        public IEnumerable<string> List(string path)
-        {
-            return new DirectoryInfo(Path.Combine(rootPath, path))
-                .EnumerateFileSystemInfos()
-                .Select(info => (info.Attributes & FileAttributes.Directory) != 0 ? info.Name + "/" : info.Name)
-                .Select(p => Path.Combine(path, p));
-        }
     }
 }
