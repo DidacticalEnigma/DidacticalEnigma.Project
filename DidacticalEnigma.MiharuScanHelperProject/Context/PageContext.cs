@@ -1,7 +1,7 @@
 using DidacticalEnigma.MiharuScanHelperProject.Json;
 using DidacticalEnigma.Project;
 
-namespace DidacticalEnigma.MiharuScanHelperProject;
+namespace DidacticalEnigma.MiharuScanHelperProject.Context;
 
 public class PageContext : ITranslationContext<TextEntryContext>
 {

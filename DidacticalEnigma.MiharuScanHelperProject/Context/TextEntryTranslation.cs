@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Optional;
 using Utility.Utils;
 
-namespace DidacticalEnigma.MiharuScanHelperProject;
+namespace DidacticalEnigma.MiharuScanHelperProject.Context;
 
 public class TextEntryTranslation : Translation
 {
