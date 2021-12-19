@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DidacticalEnigma.MagicTranslatorProject\DidacticalEnigma.MagicTranslatorProject.csproj" />
+      <ProjectReference Include="..\DidacticalEnigma.MiharuScanHelperProject\DidacticalEnigma.MiharuScanHelperProject.csproj" />
       <ProjectReference Include="..\DidacticalEnigma.Project\DidacticalEnigma.Project.csproj" />
     </ItemGroup>
 

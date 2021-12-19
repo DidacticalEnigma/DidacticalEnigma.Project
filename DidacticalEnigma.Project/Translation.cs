@@ -14,10 +14,10 @@ namespace DidacticalEnigma.Project
         public abstract IEnumerable<TranslatedText> AlternativeTranslations { get; }
 
         public abstract Translation With(
-            string originalText = null,
-            string translatedText = null,
-            IEnumerable<GlossNote> glosses = null,
-            IEnumerable<TranslatorNote> notes = null,
-            IEnumerable<TranslatedText> alternativeTranslations = null);
+            string? originalText = null,
+            string? translatedText = null,
+            IEnumerable<GlossNote>? glosses = null,
+            IEnumerable<TranslatorNote>? notes = null,
+            IEnumerable<TranslatedText>? alternativeTranslations = null);
     }
 }
