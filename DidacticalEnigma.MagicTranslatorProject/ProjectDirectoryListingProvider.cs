@@ -42,10 +42,13 @@ namespace MagicTranslatorProject
                 .TakeWhile(c => !c.current.Contains("{" + group + "}"))
                 .Select(c => c.next)
                 .ToList();
-            var matcher = new Regex(Regex.Escape(rest[rest.Count - 1])
+            var matcher = new Regex(Regex.Escape(rest[^1])
                 .Replace("\\{volume}", GetRegexComponent(metadata.Structure.Volume, "volume"))
                 .Replace("\\{chapter}", GetRegexComponent(metadata.Structure.Chapter, "chapter"))
-                .Replace("\\{page}", GetRegexComponent(metadata.Structure.Page, "page")));
+                .Replace("\\{page}", GetRegexComponent(metadata.Structure.Page, "page"))
+                .Replace("{volumeDigits}", GetDigitsRegexComponent(metadata.Structure.Volume, "volume"))
+                .Replace("{chapterDigits}", GetDigitsRegexComponent(metadata.Structure.Chapter, "chapter"))
+                .Replace("{pageDigits}", GetDigitsRegexComponent(metadata.Structure.Page, "page")));
 
             var rootVolumePath = Path.Combine(
                 rest
@@ -85,7 +88,10 @@ namespace MagicTranslatorProject
             path = path
                 .Replace("{volume}", FillPlaceholder(metadata.Structure.Volume, pageId.Chapter.Volume.VolumeNumber))
                 .Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, pageId.Chapter.ChapterNumber))
-                .Replace("{page}", FillPlaceholder(metadata.Structure.Page, pageId.PageNumber));
+                .Replace("{page}", FillPlaceholder(metadata.Structure.Page, pageId.PageNumber))
+                .Replace("{volumeDigits}", FillDigitsPlaceholder(metadata.Structure.Volume, pageId.Chapter.Volume.VolumeNumber))
+                .Replace("{chapterDigits}", FillDigitsPlaceholder(metadata.Structure.Chapter, pageId.Chapter.ChapterNumber))
+                .Replace("{pageDigits}", FillDigitsPlaceholder(metadata.Structure.Page, pageId.PageNumber));
             return path;
         }
 
@@ -101,10 +107,21 @@ namespace MagicTranslatorProject
             var length = LengthOfNumberPlaceholder(format);
             return numberPlaceholder.Replace(format, $"(?<{groupName}>[0-9]{{{length}}})");
         }
+        
+        private string GetDigitsRegexComponent([NotNull] string format, [NotNull] string groupName)
+        {
+            var length = LengthOfNumberPlaceholder(format);
+            return $"(?<{groupName}>[0-9]{{{length}}})";
+        }
 
         private string FillPlaceholder([NotNull] string format, int value)
         {
             return numberPlaceholder.Replace(format, value.ToString().PadLeft(LengthOfNumberPlaceholder(format), '0'));
+        }
+        
+        private string FillDigitsPlaceholder([NotNull] string format, int value)
+        {
+            return value.ToString().PadLeft(LengthOfNumberPlaceholder(format), '0');
         }
 
         public ProjectDirectoryListingProvider([NotNull] MetadataJson metadata, [NotNull] IReadOnlyFileSystem readOnlyFileSystem)
