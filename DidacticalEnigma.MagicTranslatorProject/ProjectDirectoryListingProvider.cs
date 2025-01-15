@@ -33,6 +33,27 @@ namespace MagicTranslatorProject
                 metadata.Structure.Raw,
                 page);
         }
+        
+        public string GetTranslatedPath([NotNull] ChapterId chapter)
+        {
+            return FormatPath(
+                metadata.Structure.Translated,
+                chapter.Volume.VolumeNumber, chapter.ChapterNumber, null);
+        }
+        
+        public string GetSavesPath([NotNull] ChapterId chapter)
+        {
+            return FormatPath(
+                metadata.Structure.Save,
+                chapter.Volume.VolumeNumber, chapter.ChapterNumber, null);
+        }
+        
+        public string GetRawPath([NotNull] ChapterId chapter)
+        {
+            return FormatPath(
+                metadata.Structure.Raw,
+                chapter.Volume.VolumeNumber, chapter.ChapterNumber, null);
+        }
 
         private IEnumerable<int> Enumerate(int volume, int chapter, [NotNull] string group)
         {
@@ -83,6 +104,18 @@ namespace MagicTranslatorProject
                 .Select(x => new PageId(chapter, x));
         }
 
+        private string FormatPath([NotNull] string path, int volume, int chapter, int? page)
+        {
+            path = path
+                .Replace("{volume}", FillPlaceholder(metadata.Structure.Volume, volume))
+                .Replace("{chapter}", FillPlaceholder(metadata.Structure.Chapter, chapter))
+                .Replace("{page}", page != null ? FillPlaceholder(metadata.Structure.Page, page.Value) : "")
+                .Replace("{volumeDigits}", FillDigitsPlaceholder(metadata.Structure.Volume, volume))
+                .Replace("{chapterDigits}", FillDigitsPlaceholder(metadata.Structure.Chapter, chapter))
+                .Replace("{pageDigits}", FillDigitsPlaceholder(metadata.Structure.Page, page ?? 0));
+            return path;
+        }
+        
         private string FormatPath([NotNull] string path, [NotNull] PageId pageId)
         {
             path = path

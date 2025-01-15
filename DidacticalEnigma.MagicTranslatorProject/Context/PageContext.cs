@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using MagicTranslatorProject.Json;
 using Newtonsoft.Json;
 using Optional;
+using Point = MagicTranslatorProject.Json.Point;
 
 namespace MagicTranslatorProject.Context
 {
@@ -47,6 +48,58 @@ namespace MagicTranslatorProject.Context
             catch (DirectoryNotFoundException)
             {
                 this.captures = Array.Empty<CaptureContext>();
+            }
+        }
+        
+        public Rectangle<double> GetRelativeRectangle(CaptureContext captureContext, Size<int> pageSize)
+        {
+            if (captureContext.Version == 1)
+            {
+                // version 1's rectangles are in pixels
+                return new Rectangle<double>(
+                    x: captureContext.Position.X / pageSize.Width,
+                    y: captureContext.Position.Y / pageSize.Height,
+                    width: captureContext.Size.X / pageSize.Width,
+                    height: captureContext.Size.Y / pageSize.Height);
+            }
+            else if (captureContext.Version == 2)
+            {
+                // version 2's rectangles is a [0; 1] float64 relative to the size of the image
+                return new Rectangle<double>(
+                    x: captureContext.Position.X,
+                    y: captureContext.Position.Y,
+                    width: captureContext.Size.X,
+                    height: captureContext.Size.Y);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+        
+        public Rectangle<int> GetAbsoluteRectangle(CaptureContext captureContext, Size<int> pageSize)
+        {
+            if (captureContext.Version == 1)
+            {
+                // version 1's rectangles are in pixels
+                return new Rectangle<int>(
+                    x: (int)captureContext.Position.X,
+                    y: (int)captureContext.Position.Y,
+                    width: (int)captureContext.Size.X,
+                    height: (int)captureContext.Size.Y);
+            }
+            else if (captureContext.Version == 2)
+            {
+                // version 2's rectangles is a [0; 1] float64 relative to the size of the image
+                return new Rectangle<int>(
+                    x: (int)(captureContext.Position.X * pageSize.Width),
+                    y: (int)(captureContext.Position.Y * pageSize.Height),
+                    width: (int)(captureContext.Size.X * pageSize.Width),
+                    height: (int)(captureContext.Size.Y * pageSize.Height));
+            }
+            else
+            {
+                throw new InvalidOperationException();
             }
         }
 

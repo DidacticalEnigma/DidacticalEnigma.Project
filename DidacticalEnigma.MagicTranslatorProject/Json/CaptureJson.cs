@@ -8,6 +8,9 @@ namespace MagicTranslatorProject.Json
 {
     internal class CaptureJson
     {
+        [JsonProperty("version")]
+        public int? Version { get; set; }
+        
         [JsonProperty("text")]
         public string Text { get; set; }
 
@@ -26,6 +29,14 @@ namespace MagicTranslatorProject.Json
 
         [JsonProperty("id")]
         public long Id { get; set; }
+        
+        
+        [JsonProperty("position")]
+        public Point Position { get; set; }
+        
+        
+        [JsonProperty("size")]
+        public Point Size { get; set; }
 
         [UsedImplicitly]
         [JsonExtensionData]

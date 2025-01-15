@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DidacticalEnigma.Project;
 using MagicTranslatorProject.Json;
+using Point = MagicTranslatorProject.Json.Point;
 
 namespace MagicTranslatorProject.Context
 {
@@ -25,6 +26,8 @@ namespace MagicTranslatorProject.Context
             this.Translation = translation;
         }
 
+        internal int Version => json.Version ?? 1;
+
         public CharacterType Character => json.Character;
 
         public DidacticalEnigma.Project.Translation Translation { get; private set; }
@@ -34,5 +37,9 @@ namespace MagicTranslatorProject.Context
         public string ShortDescription => $"{pageContext.ShortDescription}. {json.Character}";
 
         public string ReadableIdentifier => captureId.ToString();
+        
+        internal Point Position => json.Position;
+        
+        internal Point Size => json.Size;
     }
 }
